@@ -44,6 +44,7 @@ export default class QRCode extends PureComponent {
     logoSize: DEFAULT_SIZE * 0.2,
     logoBackgroundColor: DEFAULT_BG_COLOR,
     logoMargin: 2,
+    margin: 0,
     logoBorderRadius: 0,
     ecl: 'M'
   };
@@ -62,9 +63,9 @@ export default class QRCode extends PureComponent {
   }
   /* calculate the size of the cell and draw the path */
   setMatrix (props) {
-    const { value, size, ecl } = props
+    const { value, size, ecl, margin } = props
     this._matrix = genMatrix(value, ecl)
-    this._cellSize = size / this._matrix.length
+    this._cellSize = (size - margin * 2) / this._matrix.length
     this._path = this.transformMatrixIntoPath()
   }
   /* project the matrix into path draw */
@@ -97,10 +98,13 @@ export default class QRCode extends PureComponent {
   render () {
     const {
       getRef, size, color, backgroundColor,
-      logo, logoSize, logoMargin, logoBackgroundColor, logoBorderRadius
+      logo, logoSize, logoMargin, logoBackgroundColor, logoBorderRadius, margin
     } = this.props
 
     const logoPosition = size / 2 - logoSize / 2 - logoMargin
+
+    const spcePosstion = size / 2 - size / 2 - margin
+
     const logoWrapperSize = logoSize + logoMargin * 2
     const logoWrapperBorderRadius = logoBorderRadius + (logoBorderRadius && logoMargin)
 
@@ -124,16 +128,37 @@ export default class QRCode extends PureComponent {
             />
           </ClipPath>
         </Defs>
+
+
         <Rect
-          width={size}
-          height={size}
+          x={-margin}
+          y={-margin}
+          width={size + margin * 2}
+          height={size + margin * 2}
           fill={backgroundColor}
         />
+
+        <Rect
+          x={margin}
+          y={margin}
+          width={size - margin * 2}
+          height={size - margin * 2}
+          preserveAspectRatio='xMidYMid slice'
+          fill={backgroundColor}
+        />
+
+        
         <Path
+          x={margin}
+          y={margin}
           d={this._path}
           stroke={color}
           strokeWidth={this._cellSize}
         />
+
+
+        
+
         {logo && (
           <G x={logoPosition} y={logoPosition}>
             <Rect
@@ -153,6 +178,8 @@ export default class QRCode extends PureComponent {
             </G>
           </G>
         )}
+
+
       </Svg>
     )
   }
